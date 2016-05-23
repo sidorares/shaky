@@ -405,21 +405,13 @@ var drawDiagram = function(input, output) {
     figure = figures[k];
     results.push(figure.draw(ctx));
   }
-  var out = fs.createWriteStream(output);
-  var stream = canvas.createPNGStream();
-
-  stream.on('data', function(chunk){
-    out.write(chunk);
-  });
-  console.log(input);
-  console.log(output);
-  return results;
+  return canvas.toDataURL();
 };
 
-module.exports = function (input, output){
+module.exports = function (input){
   if (!Font) {
     throw new Error('Need to compile with font support');
   }
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
-  drawDiagram(input, output);
+  return drawDiagram(input);
 }
