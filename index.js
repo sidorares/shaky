@@ -385,9 +385,9 @@ parseASCIIArt = function(string) {
   return figures;
 };
 /*******************************************/
-var drawDiagram = function(input, output) {
+var drawDiagram = function(input) {
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
-  var data = fs.readFileSync(input).toString();
+  var data = input;
   figures = parseASCIIArt(data);
   width = 0;
   height = 0;
