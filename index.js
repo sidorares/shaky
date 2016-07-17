@@ -1,8 +1,8 @@
 var Canvas = require('canvas'),
     fs = require('fs'),
-    path = require("path"), 
-    Font = Canvas.Font, 
-    customFont = new Font('GloriaHallelujah', path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf')), 
+    path = require("path"),
+    Font = Canvas.Font,
+    customFont = new Font('GH', path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf')),
     CELL_SIZE = 15,
     Line, Point, ShakyCanvas, Text, X, Y, doc, parseASCIIArt, textarea,
     slice = [].slice;
@@ -20,7 +20,7 @@ ShakyCanvas = (function() {
     this.ctx = canvas.getContext('2d');
     this.ctx.addFont(customFont);
     this.ctx.lineWidth = 3;
-    this.ctx.font = "20pt 'Gloria Hallelujah'";
+    this.ctx.font = "20pt GH";
     this.ctx.textBaseline = 'middle';
   }
 
@@ -385,7 +385,7 @@ parseASCIIArt = function(string) {
   return figures;
 };
 /*******************************************/
-var drawDiagram = function(input) {
+var drawDiagram = function(input, type) {
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
   var data = input;
   figures = parseASCIIArt(data);
@@ -398,20 +398,25 @@ var drawDiagram = function(input) {
       height = Math.max(height, Y(figure.y1 + 1));
     }
   }
-  canvas = new Canvas(width, height);
+  canvas = new Canvas(width, height, type ? type : undefined);
   ctx = new ShakyCanvas(canvas);
   results = [];
   for (k = 0, len1 = figures.length; k < len1; k++) {
     figure = figures[k];
     results.push(figure.draw(ctx));
   }
-  return canvas.toDataURL();
+
+  if (type == 'svg') {
+    return canvas.toBuffer();
+  } else {
+    return canvas.toDataURL();
+  }
 };
 
-module.exports = function (input){
+module.exports = function (input, type){
   if (!Font) {
     throw new Error('Need to compile with font support');
   }
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
-  return drawDiagram(input);
+  return drawDiagram(input, type);
 }

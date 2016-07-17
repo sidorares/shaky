@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-var Shaky = require('shaky'),
+var Shaky = require('./index.js'),
     input,
     output,
     arg = process.argv;
@@ -19,4 +19,11 @@ for (var index = 0; index < len; index++) {
   }
 }
 
-Shaky(input, output);
+console.log(input, output);
+var fs = require('fs');
+fs.writeFile(output,
+  Shaky(
+    fs.readFileSync(input, 'utf8')
+    , 'svg'
+  )
+);
