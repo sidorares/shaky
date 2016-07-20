@@ -2,10 +2,11 @@ var Canvas = require('canvas'),
     fs = require('fs'),
     path = require("path"),
     Font = Canvas.Font,
-    customFont = new Font('GH', path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf')),
     CELL_SIZE = 15,
     Line, Point, ShakyCanvas, Text, X, Y, doc, parseASCIIArt, textarea,
     slice = [].slice;
+
+Canvas.registerFont(path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf'), {family: 'GH'});
 
 X = function(x) {
   return x * CELL_SIZE + (CELL_SIZE / 2);
@@ -18,7 +19,6 @@ Y = function(y) {
 ShakyCanvas = (function() {
   function ShakyCanvas(canvas) {
     this.ctx = canvas.getContext('2d');
-    this.ctx.addFont(customFont);
     this.ctx.lineWidth = 3;
     this.ctx.font = "20pt GH";
     this.ctx.textBaseline = 'middle';
@@ -414,9 +414,6 @@ var drawDiagram = function(input, type) {
 };
 
 module.exports = function (input, type){
-  if (!Font) {
-    throw new Error('Need to compile with font support');
-  }
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
   return drawDiagram(input, type);
 }
