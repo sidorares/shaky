@@ -9,7 +9,7 @@
     "test": "test"
   },
   "dependencies": {
-    "canvas": "git@github.com:chearon/node-canvas.git#b4e474c2655f65f405e8b6fb621b88e0d5ba18ac",
+    "canvas": "	2.0.0-alpha.5",
     "chai": "^3.3.0"
   },
   "devDependencies": {
