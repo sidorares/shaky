@@ -1,26 +1,36 @@
 var Canvas = require('canvas'),
-    fs = require('fs'),
-    path = require("path"),
-    Font = Canvas.Font,
-    CELL_SIZE = 15,
-    Line, Point, ShakyCanvas, Text, X, Y, doc, parseASCIIArt, textarea,
-    slice = [].slice;
+  fs = require('fs'),
+  path = require('path'),
+  Font = Canvas.Font,
+  CELL_SIZE = 15,
+  Line,
+  Point,
+  ShakyCanvas,
+  Text,
+  X,
+  Y,
+  doc,
+  parseASCIIArt,
+  textarea,
+  slice = [].slice;
 
-Canvas.registerFont(path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf'), {family: 'GH'});
+Canvas.registerFont(path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf'), {
+  family: 'GH'
+});
 
 X = function(x) {
-  return x * CELL_SIZE + (CELL_SIZE / 2);
+  return x * CELL_SIZE + CELL_SIZE / 2;
 };
 
 Y = function(y) {
-  return y * CELL_SIZE + (CELL_SIZE / 2);
+  return y * CELL_SIZE + CELL_SIZE / 2;
 };
 /*******************************************/
 ShakyCanvas = (function() {
   function ShakyCanvas(canvas) {
     this.ctx = canvas.getContext('2d');
     this.ctx.lineWidth = 3;
-    this.ctx.font = "20pt GH";
+    this.ctx.font = '20pt GH';
     this.ctx.textBaseline = 'middle';
   }
 
@@ -71,7 +81,7 @@ ShakyCanvas = (function() {
     var alpha, alpha3, alpha4, dx, dy, l3, l4, x3, x4, y3, y4;
     dx = x0 - x1;
     dy = y0 - y1;
-    alpha = dy === 0 ? dx < 0 ? -Math.PI : 0 : Math.atan(dy / dx);
+    alpha = dy === 0 ? (dx < 0 ? -Math.PI : 0) : Math.atan(dy / dx);
     alpha3 = alpha + 0.5;
     alpha4 = alpha - 0.5;
     l3 = 20;
@@ -99,11 +109,11 @@ ShakyCanvas = (function() {
   };
 
   ShakyCanvas.prototype.setStrokeStyle = function(val) {
-    return this.ctx.strokeStyle = val;
+    return (this.ctx.strokeStyle = val);
   };
 
   ShakyCanvas.prototype.setFillStyle = function(val) {
-    return this.ctx.fillStyle = val;
+    return (this.ctx.fillStyle = val);
   };
 
   ShakyCanvas.prototype.fillText = function() {
@@ -113,7 +123,6 @@ ShakyCanvas = (function() {
   };
 
   return ShakyCanvas;
-
 })();
 /*******************************************/
 Point = (function() {
@@ -123,7 +132,6 @@ Point = (function() {
   }
 
   return Point;
-
 })();
 /*******************************************/
 Line = (function() {
@@ -158,7 +166,6 @@ Line = (function() {
   };
 
   return Line;
-
 })();
 /*******************************************/
 Text = (function() {
@@ -175,22 +182,46 @@ Text = (function() {
   };
 
   return Text;
-
 })();
 /*******************************************/
 parseASCIIArt = function(string) {
-  var at, data, dir, erase, eraseChar, extractLine, extractText, figures, findLineChar, height, isLineEnding, isPartOfLine, j, k, len, line, lines, ref, ref1, toColor, width, x, y;
+  var at,
+    data,
+    dir,
+    erase,
+    eraseChar,
+    extractLine,
+    extractText,
+    figures,
+    findLineChar,
+    height,
+    isLineEnding,
+    isPartOfLine,
+    j,
+    k,
+    len,
+    line,
+    lines,
+    ref,
+    ref1,
+    toColor,
+    width,
+    x,
+    y;
   lines = string.split('\n');
   height = lines.length;
-  width = Math.max.apply(Math, (function() {
-    var j, len, results;
-    results = [];
-    for (j = 0, len = lines.length; j < len; j++) {
-      line = lines[j];
-      results.push(line.length);
-    }
-    return results;
-  })());
+  width = Math.max.apply(
+    Math,
+    (function() {
+      var j, len, results;
+      results = [];
+      for (j = 0, len = lines.length; j < len; j++) {
+        line = lines[j];
+        results.push(line.length);
+      }
+      return results;
+    })()
+  );
   data = [];
   at = function(y, x) {
     var ref;
@@ -199,7 +230,11 @@ parseASCIIArt = function(string) {
   for (y = j = 0, len = lines.length; j < len; y = ++j) {
     line = lines[y];
     data[y] = line.split('');
-    for (x = k = ref = line.length, ref1 = width; ref <= ref1 ? k < ref1 : k > ref1; x = ref <= ref1 ? ++k : --k) {
+    for (
+      x = k = ref = line.length, ref1 = width;
+      ref <= ref1 ? k < ref1 : k > ref1;
+      x = ref <= ref1 ? ++k : --k
+    ) {
       data[y][x] = ' ';
     }
   }
@@ -245,7 +280,7 @@ parseASCIIArt = function(string) {
       case 'v':
       case '~':
       case '!':
-        return data[y][x] = ' ';
+        return (data[y][x] = ' ');
       case '+':
         dx = 1 - dx;
         dy = 1 - dy;
@@ -265,10 +300,10 @@ parseASCIIArt = function(string) {
           case '|':
           case '!':
           case '+':
-            return data[y][x] = '|';
+            return (data[y][x] = '|');
           case '-':
           case '~':
-            return data[y][x] = '-';
+            return (data[y][x] = '-');
         }
     }
   };
@@ -349,34 +384,39 @@ parseASCIIArt = function(string) {
     results = [];
     for (y = m = 0, ref2 = height; 0 <= ref2 ? m < ref2 : m > ref2; y = 0 <= ref2 ? ++m : --m) {
       x = 0;
-      results.push((function() {
-        var results1;
-        results1 = [];
-        while (x < width) {
-          if (data[y][x] === ' ') {
-            results1.push(x++);
-          } else {
-            start = end = x;
-            while (end < width && data[y][end] !== ' ') {
-              end++;
-            }
-            text = data[y].slice(start, end).join('');
-            prev = figures[figures.length - 1];
-            if ((prev != null ? prev.constructor.name : void 0) === 'Text' && prev.x0 + prev.text.length + 1 === start) {
-              prev.text = prev.text + " " + text;
+      results.push(
+        (function() {
+          var results1;
+          results1 = [];
+          while (x < width) {
+            if (data[y][x] === ' ') {
+              results1.push(x++);
             } else {
-              color = 'black';
-              if (text[0] === '\\' && text[text.length - 1] === '\\') {
-                text = text.substring(1, text.length - 1);
-                color = '#666';
+              start = end = x;
+              while (end < width && data[y][end] !== ' ') {
+                end++;
               }
-              figures.push(new Text(x, y, text, color));
+              text = data[y].slice(start, end).join('');
+              prev = figures[figures.length - 1];
+              if (
+                (prev != null ? prev.constructor.name : void 0) === 'Text' &&
+                prev.x0 + prev.text.length + 1 === start
+              ) {
+                prev.text = prev.text + ' ' + text;
+              } else {
+                color = 'black';
+                if (text[0] === '\\' && text[text.length - 1] === '\\') {
+                  text = text.substring(1, text.length - 1);
+                  color = '#666';
+                }
+                figures.push(new Text(x, y, text, color));
+              }
+              results1.push((x = end));
             }
-            results1.push(x = end);
           }
-        }
-        return results1;
-      })());
+          return results1;
+        })()
+      );
     }
     return results;
   };
@@ -398,7 +438,7 @@ var drawDiagram = function(input, type) {
       height = Math.max(height, Y(figure.y1 + 1));
     }
   }
-  canvas = new Canvas(width, height, type ? type : undefined);
+  canvas = Canvas.createCanvas(width, height, type ? type : undefined);
   ctx = new ShakyCanvas(canvas);
   results = [];
   for (k = 0, len1 = figures.length; k < len1; k++) {
@@ -413,7 +453,7 @@ var drawDiagram = function(input, type) {
   }
 };
 
-module.exports = function (input, type){
+module.exports = function(input, type) {
   var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
   return drawDiagram(input, type);
-}
+};
