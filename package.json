@@ -8,11 +8,15 @@
     "example": "examples",
     "test": "test"
   },
+  "files": [
+    "lib",
+    "index.js"
+  ],
   "dependencies": {
-    "canvas": "2.0.0-alpha.5",
-    "chai": "^3.3.0"
+    "canvas": "2.0.0-alpha.5"
   },
   "devDependencies": {
+    "chai": "^3.3.0",
     "mocha": "^2.3.3"
   },
   "scripts": {
