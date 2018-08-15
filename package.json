@@ -10,6 +10,7 @@
   },
   "files": [
     "lib",
+    "command.js",
     "index.js"
   ],
   "dependencies": {
