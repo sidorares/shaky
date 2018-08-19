@@ -1,8 +1,4 @@
-var Canvas = require('canvas'),
-  fs = require('fs'),
-  path = require('path'),
-  Font = Canvas.Font,
-  CELL_SIZE = 15,
+var CELL_SIZE = 15,
   Line,
   Point,
   ShakyCanvas,
@@ -14,10 +10,6 @@ var Canvas = require('canvas'),
   textarea,
   slice = [].slice;
 
-Canvas.registerFont(path.join(__dirname, '/lib/GloriaHallelujah/', 'GloriaHallelujah.ttf'), {
-  family: 'GH'
-});
-
 X = function(x) {
   return x * CELL_SIZE + CELL_SIZE / 2;
 };
@@ -27,8 +19,8 @@ Y = function(y) {
 };
 /*******************************************/
 ShakyCanvas = (function() {
-  function ShakyCanvas(canvas) {
-    this.ctx = canvas.getContext('2d');
+  function ShakyCanvas(ctx) {
+    this.ctx = ctx;
     this.ctx.lineWidth = 3;
     this.ctx.font = '20pt GH';
     this.ctx.textBaseline = 'middle';
@@ -54,10 +46,10 @@ ShakyCanvas = (function() {
     k2 = Math.random();
     l3 = Math.random() * K;
     l4 = Math.random() * K;
-    x3 = x0 + dx * k1 + dy / l * l3;
-    y3 = y0 + dy * k1 - dx / l * l3;
-    x4 = x0 + dx * k2 - dy / l * l4;
-    y4 = y0 + dy * k2 + dx / l * l4;
+    x3 = x0 + dx * k1 + (dy / l) * l3;
+    y3 = y0 + dy * k1 - (dx / l) * l3;
+    x4 = x0 + dx * k2 - (dy / l) * l4;
+    y4 = y0 + dy * k2 + (dx / l) * l4;
     this.ctx.moveTo(x0, y0);
     return this.ctx.bezierCurveTo(x3, y3, x4, y4, x1, y1);
   };
@@ -152,8 +144,22 @@ Line = (function() {
     ctx.moveTo(X(this.x0), Y(this.y0));
     ctx.lineTo(X(this.x1), Y(this.y1));
     ctx.stroke();
-    this._ending(ctx, this.start, X(this.x1), Y(this.y1), X(this.x0), Y(this.y0));
-    return this._ending(ctx, this.end, X(this.x0), Y(this.y0), X(this.x1), Y(this.y1));
+    this._ending(
+      ctx,
+      this.start,
+      X(this.x1),
+      Y(this.y1),
+      X(this.x0),
+      Y(this.y0)
+    );
+    return this._ending(
+      ctx,
+      this.end,
+      X(this.x0),
+      Y(this.y0),
+      X(this.x1),
+      Y(this.y1)
+    );
   };
 
   Line.prototype._ending = function(ctx, type, x0, y0, x1, y1) {
@@ -257,8 +263,16 @@ parseASCIIArt = function(string) {
   };
   findLineChar = function() {
     var m, n, ref2, ref3;
-    for (y = m = 0, ref2 = height; 0 <= ref2 ? m < ref2 : m > ref2; y = 0 <= ref2 ? ++m : --m) {
-      for (x = n = 0, ref3 = width; 0 <= ref3 ? n < ref3 : n > ref3; x = 0 <= ref3 ? ++n : --n) {
+    for (
+      y = m = 0, ref2 = height;
+      0 <= ref2 ? m < ref2 : m > ref2;
+      y = 0 <= ref2 ? ++m : --m
+    ) {
+      for (
+        x = n = 0, ref3 = width;
+        0 <= ref3 ? n < ref3 : n > ref3;
+        x = 0 <= ref3 ? ++n : --n
+      ) {
         if (data[y][x] === '|' || data[y][x] === '-') {
           return new Point(x, y);
         }
@@ -366,7 +380,15 @@ parseASCIIArt = function(string) {
       y1 += d.y;
       end = data[y1][x1] === '*' ? 'circle' : 'arrow';
     }
-    line = new Line(x0, y0, start, x1, y1, end, color != null ? color : 'black');
+    line = new Line(
+      x0,
+      y0,
+      start,
+      x1,
+      y1,
+      end,
+      color != null ? color : 'black'
+    );
     figures.push(line);
     erase(line);
     if (start === 'arrow') {
@@ -382,7 +404,11 @@ parseASCIIArt = function(string) {
   extractText = function() {
     var color, end, m, prev, ref2, results, start, text;
     results = [];
-    for (y = m = 0, ref2 = height; 0 <= ref2 ? m < ref2 : m > ref2; y = 0 <= ref2 ? ++m : --m) {
+    for (
+      y = m = 0, ref2 = height;
+      0 <= ref2 ? m < ref2 : m > ref2;
+      y = 0 <= ref2 ? ++m : --m
+    ) {
       x = 0;
       results.push(
         (function() {
@@ -425,35 +451,120 @@ parseASCIIArt = function(string) {
   return figures;
 };
 /*******************************************/
-var drawDiagram = function(input, type) {
-  var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
+var drawDiagram = function(input) {
+  var figure, figures, j, k, len, len1, results;
   var data = input;
   figures = parseASCIIArt(data);
-  width = 0;
-  height = 0;
+  var left = 10000;
+  var right = 0;
+  var bottom = 0;
+  var top = 10000;
+
   for (j = 0, len = figures.length; j < len; j++) {
     figure = figures[j];
     if (figure.constructor.name === 'Line') {
-      width = Math.max(width, X(figure.x1 + 1));
-      height = Math.max(height, Y(figure.y1 + 1));
+      right = Math.max(right, X(figure.x1 + 1));
+      bottom = Math.max(bottom, Y(figure.y1 + 1));
+      left = Math.min(left, X(figure.x0));
+      top = Math.min(top, Y(figure.y0));
     }
   }
-  canvas = Canvas.createCanvas(width, height, type ? type : undefined);
-  ctx = new ShakyCanvas(canvas);
-  results = [];
-  for (k = 0, len1 = figures.length; k < len1; k++) {
-    figure = figures[k];
-    results.push(figure.draw(ctx));
+
+  var jsdom = require('jsdom');
+  var C2S = require('canvas2svg');
+  const window = new jsdom.JSDOM(``).window;
+  const document = window.document;
+  const ctx = {};
+  window.HTMLCanvasElement.prototype.getContext = () => {};
+  var svgCtx = new C2S({
+    document: document,
+    width: 10000,
+    height: 10000,
+    ctx
+  });
+
+  function XMLSerializer() {}
+
+  XMLSerializer.prototype.serializeToString = function(node) {
+    if (!node) {
+      return '';
+    }
+
+    // Fix a jsdom issue where all SVG tagNames are lowercased:
+    // https://github.com/tmpvar/jsdom/issues/620
+    var text = node.outerHTML;
+    var tagNames = ['linearGradient', 'radialGradient', 'clipPath', 'textPath'];
+    for (var i = 0, l = tagNames.length; i < l; i++) {
+      var tagName = tagNames[i];
+      text = text.replace(
+        new RegExp('(<|</)' + tagName.toLowerCase() + '\\b', 'g'),
+        function(match, start) {
+          return start + tagName;
+        }
+      );
+    }
+    return text;
+  };
+
+  global.XMLSerializer = XMLSerializer;
+  var shakyCtx = new ShakyCanvas(svgCtx);
+  figures.forEach(figure => figure.draw(shakyCtx));
+  //
+  const root = svgCtx.getSvg();
+  const textEles = root.querySelectorAll('text');
+  for (e of textEles) {
+    e.removeAttribute('font-size');
+    e.removeAttribute('stroke');
+    e.removeAttribute('dominant-baseline');
+    e.removeAttribute('font-family');
+    e.removeAttribute('text-decoration');
+    e.removeAttribute('text-anchor');
+    e.removeAttribute('fill');
+    e.removeAttribute('font-style');
+    e.removeAttribute('font-weight');
   }
 
-  if (type == 'svg') {
-    return canvas.toBuffer();
-  } else {
-    return canvas.toDataURL();
+  const pathEles = root.querySelectorAll('path');
+  for (e of pathEles) {
+    e.removeAttribute('font-size');
+    //e.removeAttribute('stroke');
+    e.removeAttribute('dominant-baseline');
+    e.removeAttribute('font-family');
+    e.removeAttribute('text-decoration');
+    e.removeAttribute('stroke-width');
+    //e.removeAttribute('fill');
+    e.removeAttribute('stroke-miterlimit');
+    e.removeAttribute('paint-order');
+    const d = e.getAttribute('d');
+    const d1 = d
+      .split(' ')
+      .map(t => {
+        const asNum = Number(t);
+        if (t === '' || Number.isNaN(asNum)) {
+          return t;
+        } else {
+          return asNum.toFixed(5).toString();
+        }
+      })
+      .join(' ');
+    e.setAttribute('d', d1);
   }
+
+  const svgEle = root; //.querySelector('svg');
+  svgEle.removeAttribute('width');
+  svgEle.removeAttribute('height');
+  const width = right - left;
+  const height = bottom - top;
+  svgEle.setAttribute(
+    'viewBox',
+    [left - CELL_SIZE / 2, top - CELL_SIZE / 2, width, height].join(' ')
+  );
+
+  const defs = svgEle.firstChild;
+  defs.innerHTML = `<style>path { stroke-width: 3; stroke: black; fill: none; } text { text-anchor: start }</style>`;
+  return svgCtx.getSerializedSvg(true);
 };
 
-module.exports = function(input, type) {
-  var canvas, ctx, figure, figures, height, j, k, len, len1, results, width;
-  return drawDiagram(input, type);
+module.exports = function(input) {
+  return drawDiagram(input);
 };

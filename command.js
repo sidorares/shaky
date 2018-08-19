@@ -1,29 +1,25 @@
 #! /usr/bin/env node
 var Shaky = require('./index.js'),
-    input,
-    output,
-    arg = process.argv;
-    len = arg.length;
-if(arg.length!=6){
-    console.log("Usage: shaky -i ascii.txt -o diagram.png");
-    return 0;
+  input,
+  output,
+  arg = process.argv;
+len = arg.length;
+if (arg.length != 6) {
+  console.log('Usage: shaky -i ascii.txt -o diagram.png');
+  return 0;
 }
 for (var index = 0; index < len; index++) {
   switch (arg[index]) {
-   case '-i':
-     input = arg[index+1];
-     break;
-   case '-o':
-     output = arg[index+1];
-     break;
+    case '-i':
+      input = arg[index + 1];
+      break;
+    case '-o':
+      output = arg[index + 1];
+      break;
   }
 }
 
 console.log(input, output);
 var fs = require('fs');
-fs.writeFile(output,
-  Shaky(
-    fs.readFileSync(input, 'utf8')
-    , 'svg'
-  )
-);
+const out = Shaky(fs.readFileSync(input, 'utf8'));
+fs.writeFileSync(output, '' + out);
